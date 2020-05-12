@@ -1,30 +1,28 @@
-let direction = 'right'; // Global variable
+// Global variables
+let direction = 'right';
+let snakeBody = [];
+
 function checkSupported() {
     canvas = document.getElementById('canvas');
     if (canvas.getContext) {
         // Canvas is supported on this browser
         ctx = canvas.getContext('2d');
 
-        // Sets fill color to red
-        ctx.fillStyle = "rgb(200,0,0)";
-
-        // Sets variables
-        const x = 50;
-        const y = 50;
-        const width = 10;
-        const height = 10;
+        // Sets fill color to lime green
+        ctx.fillStyle = "#32CD32";
 
         // Current position of the snake's head (x, y)
         this.currentPosition = {'x':50, 'y':50};
-
-        // Draws a square with parameters set by the variables above
-        ctx.fillRect(x, y, width, height);
 
         // Sets the grid dimensions as one value
         this.gridSize = 10;
 
         // Moves snake every 100 milliseconds
         setInterval(moveSnake,100);
+
+        snakeLength = 3;
+        makeFoodItem();
+        drawSnake();
 
         document.onkeydown = function(event) {
             var keyCode;
@@ -92,7 +90,20 @@ function checkSupported() {
 }
 
 function drawSnake() {
-  ctx.fillRect(currentPosition['x'], currentPosition['y'], gridSize, gridSize);
+    snakeBody.push([currentPosition['x'], currentPosition['y']]);
+    ctx.fillStyle = "#32CD32";
+    ctx.fillRect(currentPosition['x'], currentPosition['y'], gridSize, gridSize);
+    if (snakeBody.length > snakeLength) {
+        var itemToRemove = snakeBody.shift();
+        ctx.clearRect(itemToRemove[0], itemToRemove[1], gridSize, gridSize);
+    }
+
+    if (currentPosition['x'] == suggestedPoint[0] && currentPosition['y'] ==
+    suggestedPoint[1]) {
+        makeFoodItem();
+        snakeLength += 1;
+        //updatescore
+    }
 }
 
 function moveSnake() {
@@ -179,4 +190,20 @@ function whichWayToGo(axisType) {
         way = (currentPosition['y'] > canvas.height / 2) ? moveUp() :
         moveDown();
     }
+}
+
+function makeFoodItem() {
+    // Not declared, therefore it is a global variable
+    suggestedPoint = [Math.floor(Math.random() * (canvas.width/gridSize)) *
+    gridSize, Math.floor(Math.random() * (canvas.height/gridSize)) * gridSize];
+    if (snakeBody.some(hasPoint)) {
+        makeFoodItem();
+    } else {
+        ctx.fillStyle = "red";
+        ctx.fillRect(suggestedPoint[0], suggestedPoint[1], gridSize, gridSize);
+    }
+}
+
+function hasPoint(element, index, array) {
+    return (element[0] == suggestedPoint[0] && element[1] == suggestedPoint[1]);
 }
